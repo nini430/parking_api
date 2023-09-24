@@ -8,6 +8,12 @@ export interface RegisterInput {
 }
 
 
+export interface ResetPasswordOptions {
+  message:string;
+  email:string;
+  subject:string;
+}
+
 export interface LoginInput {
   email?:string;
   phoneNumber?:string;

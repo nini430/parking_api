@@ -1,8 +1,10 @@
+import crypto from 'crypto';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { RegisterInput } from '../types/auth';
 import db from '../utils/dbConnect';
+import { Token, TokenType } from '@prisma/client';
 
 const hashPassword = async (password: string) => {
   const hashedPassword = await bcrypt.hash(password, 12);
@@ -42,4 +44,56 @@ const comparePassword = async (password: string, hashedPassword: string) => {
   return isPasswordCorrect;
 };
 
-export { createUser, createToken, comparePassword, findUserByEmailOrPhone };
+const findUserByEmail = async (email: string) => {
+  const user = await db.user.findUnique({
+    where: {
+      email,
+    },
+  });
+  return user;
+};
+
+const createCryptoToken = () => {
+  return crypto.randomBytes(20).toString('hex');
+};
+
+const hashCryptoToken = (token: string) => {
+  const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+  return hashedToken;
+};
+
+const createTokenModel = async (name: TokenType, userId: string) => {
+  const initialToken = createCryptoToken();
+  const hashedToken = hashCryptoToken(initialToken);
+  await db.token.create({
+    data: {
+      name,
+      userId,
+      hashedToken,
+      hashedTokenExpire: Date.now() + 10 * 60 * 1000,
+    },
+  });
+  return initialToken;
+};
+
+const checkToken=async(userId:string,name:TokenType)=>{
+  const token=await db.token.findFirst({
+    where:{
+      name,
+      userId
+    }
+  });
+  if(token) {
+    await db.token.delete({where:{id:token.id}})
+  }
+}
+
+export {
+  createUser,
+  createToken,
+  comparePassword,
+  findUserByEmailOrPhone,
+  findUserByEmail,
+  createTokenModel,
+  checkToken
+};

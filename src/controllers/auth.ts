@@ -4,13 +4,17 @@ import { StatusCodes } from 'http-status-codes';
 
 import { LoginInput, RegisterInput } from '../types/auth';
 import {
+  checkToken,
   comparePassword,
   createToken,
+  createTokenModel,
   createUser,
+  findUserByEmail,
   findUserByEmailOrPhone,
 } from '../services/auth';
 import { errorMessages, successMessages } from '../utils/messages';
 import ErrorResponse from '../utils/errorResponse';
+import sendEmail from '../utils/sendEmail';
 
 const registerUserHandler = asyncHandler(
   async (
@@ -108,4 +112,20 @@ const loginUserHandler = asyncHandler(
   }
 );
 
-export { registerUserHandler, loginUserHandler };
+const forgotPasswordHandler=asyncHandler(async(req:Request<{},{},{email:string}>,res:Response,next:NextFunction)=>{
+  const {email}=req.body;
+  const user=await findUserByEmail(email);
+  if(!user) {
+    return next(new ErrorResponse(errorMessages.invalidCredentials,StatusCodes.BAD_REQUEST))
+  }
+
+  await checkToken(user.id,'PASSWORD_RESET');
+  const token=await createTokenModel('PASSWORD_RESET',user.id);
+
+  const message=`You requested to reset your password. please make a put request to ${req.protocol}://${req.get('host')}/api/v1/auth/reset-password/${token}`
+  sendEmail({email:user.email, message, subject:'Password Reset Request'});
+
+  return res.status(StatusCodes.OK).json({success:true,message:successMessages.emailSent});
+})
+
+export { registerUserHandler, loginUserHandler,forgotPasswordHandler };
