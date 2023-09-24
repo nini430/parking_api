@@ -76,17 +76,69 @@ const createTokenModel = async (name: TokenType, userId: string) => {
   return initialToken;
 };
 
-const checkToken=async(userId:string,name:TokenType)=>{
-  const token=await db.token.findFirst({
-    where:{
+const checkToken = async (userId: string, name: TokenType) => {
+  const token = await db.token.findFirst({
+    where: {
       name,
-      userId
-    }
+      userId,
+    },
   });
-  if(token) {
-    await db.token.delete({where:{id:token.id}})
+  if (token) {
+    await db.token.delete({ where: { id: token.id } });
   }
-}
+};
+
+const findUserById = async (userId: string) => {
+  const user = await db.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  return user;
+};
+
+const findTokenByCryptoToken = async (
+  token: string,
+  userId: string,
+  name: TokenType
+) => {
+  const hashedToken = hashCryptoToken(token);
+  const tokenModel = await db.token.findFirst({
+    where: {
+      hashedToken,
+      userId,
+      name,
+    },
+  });
+  return tokenModel;
+};
+
+const checkTokenExpiration = async (token: Token) => {
+  if (token.hashedTokenExpire < Date.now()) {
+    return true;
+  }
+  return false;
+};
+
+const resetPassword = async (password: string, userId: string) => {
+  const hashedPassword = await hashPassword(password);
+  await db.user.update({
+    where: {
+      id: userId,
+    },
+    data: {
+      password: hashedPassword,
+    },
+  });
+};
+
+const removeTokenById = async (id: string) => {
+  await db.token.delete({
+    where: {
+      id,
+    },
+  });
+};
 
 export {
   createUser,
@@ -95,5 +147,10 @@ export {
   findUserByEmailOrPhone,
   findUserByEmail,
   createTokenModel,
-  checkToken
+  checkToken,
+  findUserById,
+  findTokenByCryptoToken,
+  checkTokenExpiration,
+  resetPassword,
+  removeTokenById,
 };

@@ -5,12 +5,17 @@ import { StatusCodes } from 'http-status-codes';
 import { LoginInput, RegisterInput } from '../types/auth';
 import {
   checkToken,
+  checkTokenExpiration,
   comparePassword,
   createToken,
   createTokenModel,
   createUser,
+  findTokenByCryptoToken,
   findUserByEmail,
   findUserByEmailOrPhone,
+  findUserById,
+  removeTokenById,
+  resetPassword,
 } from '../services/auth';
 import { errorMessages, successMessages } from '../utils/messages';
 import ErrorResponse from '../utils/errorResponse';
@@ -112,20 +117,108 @@ const loginUserHandler = asyncHandler(
   }
 );
 
-const forgotPasswordHandler=asyncHandler(async(req:Request<{},{},{email:string}>,res:Response,next:NextFunction)=>{
-  const {email}=req.body;
-  const user=await findUserByEmail(email);
-  if(!user) {
-    return next(new ErrorResponse(errorMessages.invalidCredentials,StatusCodes.BAD_REQUEST))
+const forgotPasswordHandler = asyncHandler(
+  async (
+    req: Request<{}, {}, { email: string }>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { email } = req.body;
+    const user = await findUserByEmail(email);
+    if (!user) {
+      return next(
+        new ErrorResponse(
+          errorMessages.invalidCredentials,
+          StatusCodes.BAD_REQUEST
+        )
+      );
+    }
+
+    await checkToken(user.id, 'PASSWORD_RESET');
+    const token = await createTokenModel('PASSWORD_RESET', user.id);
+
+    const message = `You requested to reset your password. please make a put request to ${
+      req.protocol
+    }://${req.get('host')}/api/v1/auth/reset-password/${token}?userId=${
+      user.id
+    }`;
+    sendEmail({
+      email: user.email,
+      message,
+      subject: 'Password Reset Request',
+    });
+
+    return res
+      .status(StatusCodes.OK)
+      .json({ success: true, message: successMessages.emailSent });
   }
+);
 
-  await checkToken(user.id,'PASSWORD_RESET');
-  const token=await createTokenModel('PASSWORD_RESET',user.id);
+const resetPasswordTokenHandler = asyncHandler(
+  async (
+    req: Request<
+      { token: string },
+      {},
+      { newPassword: string },
+      { userId: string }
+    >,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { userId } = req.query;
+    const tokenParam = req.params.token;
+    const { newPassword } = req.body;
 
-  const message=`You requested to reset your password. please make a put request to ${req.protocol}://${req.get('host')}/api/v1/auth/reset-password/${token}`
-  sendEmail({email:user.email, message, subject:'Password Reset Request'});
+    if(!userId || !tokenParam || !newPassword) {
+      return next(
+        new ErrorResponse(
+          errorMessages.invalidCredentials,
+          StatusCodes.BAD_REQUEST
+        )
+      );
+    }
 
-  return res.status(StatusCodes.OK).json({success:true,message:successMessages.emailSent});
-})
+    const user = await findUserById(userId);
+    if (!user) {
+      return next(
+        new ErrorResponse(
+          errorMessages.invalidCredentials,
+          StatusCodes.BAD_REQUEST
+        )
+      );
+    }
 
-export { registerUserHandler, loginUserHandler,forgotPasswordHandler };
+    const token = await findTokenByCryptoToken(
+      tokenParam,
+      userId,
+      'PASSWORD_RESET'
+    );
+    if (!token) {
+      return next(
+        new ErrorResponse(errorMessages.invalidRequest, StatusCodes.BAD_REQUEST)
+      );
+    }
+
+    const isTokenExpired = await checkTokenExpiration(token);
+
+    if (isTokenExpired) {
+      return next(
+        new ErrorResponse(errorMessages.expiredLink, StatusCodes.BAD_REQUEST)
+      );
+    }
+
+    await resetPassword(newPassword, userId);
+    await removeTokenById(token.id);
+
+    return res
+      .status(StatusCodes.OK)
+      .json({ success: true, data: successMessages.passwordResetSuccess });
+  }
+);
+
+export {
+  registerUserHandler,
+  loginUserHandler,
+  forgotPasswordHandler,
+  resetPasswordTokenHandler,
+};
