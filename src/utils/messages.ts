@@ -8,6 +8,7 @@ const errorMessages = {
   invalidCredentials: 'Invalid Credentials - არასწორი მონაცემები',
   invalidRequest: 'Invalid Request - არასწორი მოთხოვნა',
   expiredLink: 'Link is expired - ბმული აღარ არის ვალიდური',
+  unauthenticated:'Unauthenticated - არაავტორიზებული მოთხოვნა'
 };
 
 const successMessages = {

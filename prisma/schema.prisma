@@ -12,14 +12,16 @@ datasource db {
 }
 
 model User {
-  id          String  @id @default(uuid())
+  id          String       @id @default(uuid())
   firstName   String
   lastName    String
-  email       String  @unique
-  phoneNumber String  @unique
+  email       String       @unique
+  phoneNumber String       @unique
   idNumber    String
   password    String
+  virtualBalance Float @default(0)
   tokens      Token[]
+  autoMobiles AutoMobile[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -39,5 +41,35 @@ model Token {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, name])
+  @@index([userId])
+}
+
+enum AutoMobileTypes {
+  MINIVAN
+  VEHICLE
+  MICROCAR
+  SEDAN
+  HATCHBACK
+  COUPE
+  VAN
+  HEV
+  ELECTRIC_CAR
+  CROSSOVER
+}
+
+model AutoMobile {
+  id                          String          @id @default(uuid())
+  name                        String          @db.Text
+  vehicleIdentificationNumber String
+  type                        AutoMobileTypes @default(SEDAN)
+  brand                       String          @db.Text
+  modelYear                   String
+  color                       String
+  userId                      String
+  user                        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
   @@index([userId])
 }
