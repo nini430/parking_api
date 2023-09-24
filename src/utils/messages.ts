@@ -4,7 +4,8 @@ const errorMessages = {
   internalError: 'Something went wrong - დაფიქსირდა შეცდომა',
   uniqueAuthConstraintError:
     'User already exists with this info - მომხმარებელი ამ მონაცემებით უკვე არსებობს',
-  missingFields:'Missing required fields - შეავსეთ სავალდებულო ველები'
+  missingFields:'Missing required fields - შეავსეთ სავალდებულო ველები',
+  invalidCredentials:'Invalid Credentials - არასწორი მონაცემები'
 };
 
 const successMessages = {

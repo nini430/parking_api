@@ -6,3 +6,10 @@ export interface RegisterInput {
   phoneNumber:string;
   idNumber:string;
 }
+
+
+export interface LoginInput {
+  email?:string;
+  phoneNumber?:string;
+  password:string;
+}
