@@ -12,16 +12,16 @@ datasource db {
 }
 
 model User {
-  id          String       @id @default(uuid())
-  firstName   String
-  lastName    String
-  email       String       @unique
-  phoneNumber String       @unique
-  idNumber    String
-  password    String
-  virtualBalance Float @default(0)
-  tokens      Token[]
-  autoMobiles AutoMobile[]
+  id             String       @id @default(uuid())
+  firstName      String
+  lastName       String
+  email          String       @unique
+  phoneNumber    String       @unique
+  idNumber       String
+  password       String
+  virtualBalance Float        @default(0)
+  tokens         Token[]
+  autoMobiles    AutoMobile[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -59,7 +59,7 @@ enum AutoMobileTypes {
 
 model AutoMobile {
   id                          String          @id @default(uuid())
-  name                        String          
+  name                        String
   vehicleIdentificationNumber String
   type                        AutoMobileTypes @default(SEDAN)
   brand                       String          @db.Text
@@ -71,16 +71,30 @@ model AutoMobile {
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
+  @@unique([userId, name])
   @@index([userId])
-  @@unique([userId,name])
 }
 
-
 model Admin {
-  id String @id @default(uuid())
-  uuid String
+  id       String @id @default(uuid())
+  uuid     String
   password String
+
+  parkingZones ParkingZone[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now())
 }
+
+model ParkingZone {
+  id         String @id @default(uuid())
+  name       String @unique
+  address    String @db.Text
+  hourlyCost Float
+
+  addedById String
+  addedBy   Admin  @relation(fields: [addedById], references: [id])
+
+  @@index([addedById])
+}
+
