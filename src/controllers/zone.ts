@@ -3,9 +3,14 @@ import { Request, Response, NextFunction } from 'express';
 import { Admin } from '@prisma/client';
 import { ZoneInput } from '../types/zone';
 import ErrorResponse from '../utils/errorResponse';
-import { errorMessages } from '../utils/messages';
+import { errorMessages, successMessages } from '../utils/messages';
 import { StatusCodes } from 'http-status-codes';
-import { createZone } from '../services/zone';
+import {
+  createZone,
+  getZoneById,
+  removeZoneById,
+  updateZone,
+} from '../services/zone';
 
 const createZoneHandler = asyncHandler(
   async (
@@ -42,4 +47,112 @@ const createZoneHandler = asyncHandler(
   }
 );
 
-export { createZoneHandler };
+const getZoneByIdHandler = asyncHandler(
+  async (
+    req: Request<{ zoneId: string }> & { admin: Admin },
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { zoneId } = req.params;
+    if (!req.admin) {
+      return next(
+        new ErrorResponse(
+          errorMessages.unauthenticated,
+          StatusCodes.UNAUTHORIZED
+        )
+      );
+    }
+    if (!zoneId) {
+      return next(
+        new ErrorResponse(errorMessages.missingFields, StatusCodes.BAD_REQUEST)
+      );
+    }
+
+    const zone = await getZoneById(zoneId);
+    if (!zone) {
+      return next(
+        new ErrorResponse(errorMessages.notFound, StatusCodes.NOT_FOUND)
+      );
+    }
+
+    return res.status(StatusCodes.OK).json({ success: true, data: zone });
+  }
+);
+
+const updateZoneHandler = asyncHandler(
+  async (
+    req: Request<{ zoneId: string }, {}, ZoneInput> & { admin: Admin },
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { zoneId } = req.params;
+    const { address, hourlyCost, name } = req.body;
+    if (!req.admin) {
+      return next(
+        new ErrorResponse(
+          errorMessages.unauthenticated,
+          StatusCodes.UNAUTHORIZED
+        )
+      );
+    }
+    if (!address || !hourlyCost || !name) {
+      return next(
+        new ErrorResponse(errorMessages.missingFields, StatusCodes.BAD_REQUEST)
+      );
+    }
+    const zone = await getZoneById(zoneId);
+    if (!zone) {
+      return next(
+        new ErrorResponse(errorMessages.notFound, StatusCodes.NOT_FOUND)
+      );
+    }
+    const updatedZone = await updateZone({ address, hourlyCost, name }, zoneId);
+
+    return res
+      .status(StatusCodes.OK)
+      .json({ success: true, data: updatedZone });
+  }
+);
+
+const removeZoneByIdHandler = asyncHandler(
+  async (
+    req: Request<{ zoneId: string }> & { admin: Admin },
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { zoneId } = req.params;
+    if (!req.admin) {
+      return next(
+        new ErrorResponse(
+          errorMessages.unauthenticated,
+          StatusCodes.UNAUTHORIZED
+        )
+      );
+    }
+
+    if (!zoneId) {
+      return next(
+        new ErrorResponse(errorMessages.missingFields, StatusCodes.BAD_REQUEST)
+      );
+    }
+    const zone = await getZoneById(zoneId);
+    if (!zone) {
+      return next(
+        new ErrorResponse(errorMessages.notFound, StatusCodes.NOT_FOUND)
+      );
+    }
+
+    await removeZoneById(zoneId);
+
+    return res
+      .status(StatusCodes.OK)
+      .json({ success: true, message: successMessages.zoneDeleteSuccess });
+  }
+);
+
+export {
+  createZoneHandler,
+  getZoneByIdHandler,
+  updateZoneHandler,
+  removeZoneByIdHandler,
+};

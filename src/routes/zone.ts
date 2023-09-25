@@ -1,13 +1,19 @@
-import {Router} from 'express'
+import { Router } from 'express';
 import adminProtect from '../middleware/adminProtect';
-import { createZoneHandler } from '../controllers/zone';
+import {
+  createZoneHandler,
+  getZoneByIdHandler,
+  removeZoneByIdHandler,
+  updateZoneHandler,
+} from '../controllers/zone';
 
-const zoneRouter=Router();
+const zoneRouter = Router();
 
 zoneRouter.use(adminProtect);
 
-zoneRouter.post('/',createZoneHandler);
-
-
+zoneRouter.post('/', createZoneHandler);
+zoneRouter.get('/:zoneId', getZoneByIdHandler);
+zoneRouter.put('/:zoneId', updateZoneHandler);
+zoneRouter.delete('/:zoneId',removeZoneByIdHandler);
 
 export default zoneRouter;

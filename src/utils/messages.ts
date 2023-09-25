@@ -20,7 +20,8 @@ const successMessages = {
   passwordResetSuccess:
     'Password changed succesfully - პაროლი წარმატებით შეიცვალა',
   automobileDeleteSuccess:'Automobile deleted succesfully - ავტომობილი წარმატებით წაიშალა',
-  seedSuccess:'Seed completed succesfully'
+  seedSuccess:'Seed completed succesfully',
+  zoneDeleteSuccess:'Zone deleted succesfully - პარკირების ზომა წარმატებით წაიშალა'
 };
 
 export { errorMessages, successMessages };

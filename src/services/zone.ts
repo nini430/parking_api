@@ -10,4 +10,31 @@ const createZone = async (input: ZoneInput & { addedById: string }) => {
   return newZone;
 };
 
-export { createZone };
+const getZoneById = async (id: string) => {
+  const zone = await db.parkingZone.findUnique({
+    where: {
+      id,
+    },
+  });
+  return zone;
+};
+
+const updateZone = async (input: ZoneInput, zoneId: string) => {
+ const updatedZone= await db.parkingZone.update({
+    where: {
+      id: zoneId,
+    },
+    data: { ...input },
+  });
+  return updatedZone;
+};
+
+const removeZoneById=async(zoneId:string)=>{
+    await db.parkingZone.delete({
+        where:{
+            id:zoneId
+        }
+    })
+}
+
+export { createZone, getZoneById, updateZone, removeZoneById };
