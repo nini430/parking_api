@@ -1,8 +1,8 @@
 import {v4 as uuidv4} from 'uuid'
 
 import db from './utils/dbConnect';
-import { generateRandomPassword } from './services/admin';
 import { errorMessages, successMessages } from './utils/messages';
+import { hashPassword } from './services/common';
 
 const createFiveAdmins = async () => {
   try{
@@ -11,12 +11,13 @@ const createFiveAdmins = async () => {
     await db.admin.create({
       data: {
         uuid: uuidv4(),
-        password: generateRandomPassword(),
+        password: await hashPassword(process.env.MANUAL_ADMIN_SEED_PASSWORD!),
       },
     });
   }
   console.log(successMessages.seedSuccess);
   }catch(err) {
+    console.log(err);
     console.log(errorMessages.seedError);
   }
   

@@ -1,15 +1,12 @@
 import crypto from 'crypto';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 import { RegisterInput } from '../types/auth';
 import db from '../utils/dbConnect';
 import { Token, TokenType } from '@prisma/client';
+import { hashPassword } from './common';
 
-const hashPassword = async (password: string) => {
-  const hashedPassword = await bcrypt.hash(password, 12);
-  return hashedPassword;
-};
+
 
 const createUser = async (input: RegisterInput) => {
   const { firstName, lastName, email, password, idNumber, phoneNumber } = input;
@@ -39,10 +36,7 @@ const createToken = (id: string, secret: string, expiresIn: string) => {
   return newToken;
 };
 
-const comparePassword = async (password: string, hashedPassword: string) => {
-  const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
-  return isPasswordCorrect;
-};
+
 
 const findUserByEmail = async (email: string) => {
   const user = await db.user.findUnique({
@@ -143,7 +137,6 @@ const removeTokenById = async (id: string) => {
 export {
   createUser,
   createToken,
-  comparePassword,
   findUserByEmailOrPhone,
   findUserByEmail,
   createTokenModel,

@@ -2,8 +2,16 @@ import crypto from 'crypto'
 
 import db from "../utils/dbConnect";
 
-const generateRandomPassword=()=>{
-    return crypto.randomBytes(20).toString('hex');
+
+const findAdminByUniqueId=async(uuid:string)=>{
+    const admin=await db.admin.findFirst({
+        where:{
+            uuid
+        }
+    })
+    return admin;
 }
 
-export {generateRandomPassword}
+
+
+export {findAdminByUniqueId}

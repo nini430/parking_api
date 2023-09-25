@@ -6,7 +6,6 @@ import { LoginInput, RegisterInput } from '../types/auth';
 import {
   checkToken,
   checkTokenExpiration,
-  comparePassword,
   createToken,
   createTokenModel,
   createUser,
@@ -17,6 +16,7 @@ import {
   removeTokenById,
   resetPassword,
 } from '../services/auth';
+import { comparePassword } from '../services/common';
 import { errorMessages, successMessages } from '../utils/messages';
 import ErrorResponse from '../utils/errorResponse';
 import sendEmail from '../utils/sendEmail';
