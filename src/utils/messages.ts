@@ -9,7 +9,8 @@ const errorMessages = {
   invalidRequest: 'Invalid Request - არასწორი მოთხოვნა',
   expiredLink: 'Link is expired - ბმული აღარ არის ვალიდური',
   unauthenticated:'Unauthenticated - არაავტორიზებული მოთხოვნა',
-  notFound:'Not Found - არ მოიძებნა'
+  notFound:'Not Found - არ მოიძებნა',
+  seedError:'Error seeding'
 };
 
 const successMessages = {
@@ -18,7 +19,8 @@ const successMessages = {
     'E-mail has been sent,Please check - ვერიფიკაციის ლინკი გამოგზავნილია. გთხოვთ შეამოწმეთ ელ-ფოსტა',
   passwordResetSuccess:
     'Password changed succesfully - პაროლი წარმატებით შეიცვალა',
-  automobileDeleteSuccess:'Automobile deleted succesfully - ავტომობილი წარმატებით წაიშალა'
+  automobileDeleteSuccess:'Automobile deleted succesfully - ავტომობილი წარმატებით წაიშალა',
+  seedSuccess:'Seed completed succesfully'
 };
 
 export { errorMessages, successMessages };
