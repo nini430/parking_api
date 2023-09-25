@@ -24,6 +24,7 @@ const authProtect = asyncHandler(
       token,
       process.env.JWT_ACCESS_TOKEN_SECRET!,
       async (err, data: any) => {
+        console.log(data)
         if (err) {
           return next(
             new ErrorResponse(
@@ -33,7 +34,7 @@ const authProtect = asyncHandler(
           );
         }
 
-        const user = await findUserById(data.id);
+        const user = await findUserById(data.userId);
         if (!user) {
           return next(
             new ErrorResponse(

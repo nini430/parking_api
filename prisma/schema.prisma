@@ -59,7 +59,7 @@ enum AutoMobileTypes {
 
 model AutoMobile {
   id                          String          @id @default(uuid())
-  name                        String          @db.Text
+  name                        String          
   vehicleIdentificationNumber String
   type                        AutoMobileTypes @default(SEDAN)
   brand                       String          @db.Text
@@ -72,4 +72,5 @@ model AutoMobile {
   updatedAt DateTime @default(now()) @updatedAt
 
   @@index([userId])
+  @@unique([userId,name])
 }

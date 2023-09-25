@@ -14,7 +14,7 @@ const errorHandler = (
 
   if (error.code === 'P2002') {
     error = new ErrorResponse(
-      errorMessages.uniqueAuthConstraintError,
+      errorMessages.uniqueConstraintError,
       StatusCodes.CONFLICT
     );
   }
