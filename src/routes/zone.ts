@@ -2,6 +2,7 @@ import { Router } from 'express';
 import adminProtect from '../middleware/adminProtect';
 import {
   createZoneHandler,
+  getAllParkingZonesHandler,
   getZoneByIdHandler,
   removeZoneByIdHandler,
   updateZoneHandler,
@@ -11,6 +12,7 @@ const zoneRouter = Router();
 
 zoneRouter.use(adminProtect);
 
+zoneRouter.get('/',getAllParkingZonesHandler);
 zoneRouter.post('/', createZoneHandler);
 zoneRouter.get('/:zoneId', getZoneByIdHandler);
 zoneRouter.put('/:zoneId', updateZoneHandler);

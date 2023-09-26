@@ -7,10 +7,32 @@ import { errorMessages, successMessages } from '../utils/messages';
 import { StatusCodes } from 'http-status-codes';
 import {
   createZone,
+  getAllParkingZones,
   getZoneById,
+  getZoneByIdDetailed,
   removeZoneById,
   updateZone,
 } from '../services/zone';
+
+const getAllParkingZonesHandler = asyncHandler(
+  async (
+    req: Request & { admin: Admin },
+    res: Response,
+    next: NextFunction
+  ) => {
+    if (!req.admin) {
+      return next(
+        new ErrorResponse(
+          errorMessages.unauthenticated,
+          StatusCodes.UNAUTHORIZED
+        )
+      );
+    }
+
+    const zones = await getAllParkingZones();
+    return res.status(StatusCodes.OK).json({ success: true, data: zones });
+  }
+);
 
 const createZoneHandler = asyncHandler(
   async (
@@ -68,7 +90,7 @@ const getZoneByIdHandler = asyncHandler(
       );
     }
 
-    const zone = await getZoneById(zoneId);
+    const zone = await getZoneByIdDetailed(zoneId);
     if (!zone) {
       return next(
         new ErrorResponse(errorMessages.notFound, StatusCodes.NOT_FOUND)
@@ -155,4 +177,5 @@ export {
   getZoneByIdHandler,
   updateZoneHandler,
   removeZoneByIdHandler,
+  getAllParkingZonesHandler,
 };
