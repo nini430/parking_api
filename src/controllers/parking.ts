@@ -8,10 +8,10 @@ import { StatusCodes } from 'http-status-codes';
 import { getZoneById } from '../services/zone';
 import { updateUserBalance } from '../services/user';
 import {
+  cancelParkingById,
   createParking,
   getParkingById,
   getParkingByIdDetailed,
-  removeParkingById,
 } from '../services/parking';
 import { getAutomobileById } from '../services/automobile';
 
@@ -139,7 +139,7 @@ const removeParkingByIdHandler = asyncHandler(
       );
     }
 
-    await removeParkingById(parkingId);
+    await cancelParkingById(parkingId);
 
     return res
       .status(StatusCodes.OK)

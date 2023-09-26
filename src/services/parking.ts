@@ -51,11 +51,14 @@ const getParkingById = async (parkingId: string) => {
   return parking;
 };
 
-const removeParkingById = async (parkingId: string) => {
-  await db.parkingInstance.delete({
+const cancelParkingById = async (parkingId: string) => {
+  await db.parkingInstance.update({
     where: {
       id: parkingId,
     },
+    data:{
+      isCanceled:true
+    }
   });
 };
 
@@ -63,5 +66,5 @@ export {
   createParking,
   getParkingByIdDetailed,
   getParkingById,
-  removeParkingById,
+  cancelParkingById
 };
