@@ -19,7 +19,7 @@ model User {
   phoneNumber    String       @unique
   idNumber       String
   password       String
-  virtualBalance Float        @default(0)
+  virtualBalance Float        @default(100)
   tokens         Token[]
   autoMobiles    AutoMobile[]
 
@@ -58,15 +58,16 @@ enum AutoMobileTypes {
 }
 
 model AutoMobile {
-  id                          String          @id @default(uuid())
+  id                          String            @id @default(uuid())
   name                        String
   vehicleIdentificationNumber String
-  type                        AutoMobileTypes @default(SEDAN)
-  brand                       String          @db.Text
+  type                        AutoMobileTypes   @default(SEDAN)
+  brand                       String            @db.Text
   modelYear                   String
   color                       String
   userId                      String
-  user                        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user                        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  parkings                    ParkingInstance[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
@@ -93,8 +94,26 @@ model ParkingZone {
   hourlyCost Float
 
   addedById String
-  addedBy   Admin  @relation(fields: [addedById], references: [id])
+  addedBy   Admin             @relation(fields: [addedById], references: [id])
+  parkings  ParkingInstance[]
 
   @@index([addedById])
+}
+
+model ParkingInstance {
+  id String @id @default(uuid())
+
+  automobileId String
+  automobile   AutoMobile @relation(fields: [automobileId], references: [id], onDelete: Cascade)
+
+  zoneId String
+  zone   ParkingZone @relation(fields: [zoneId], references: [id], onDelete: Cascade)
+  boughtHours Float
+  expireDate BigInt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt @default(now())
+
+  @@index([automobileId])
+  @@index([zoneId])
 }
 

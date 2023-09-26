@@ -10,7 +10,8 @@ const errorMessages = {
   expiredLink: 'Link is expired - ბმული აღარ არის ვალიდური',
   unauthenticated:'Unauthenticated - არაავტორიზებული მოთხოვნა',
   notFound:'Not Found - არ მოიძებნა',
-  seedError:'Error seeding'
+  seedError:'Error seeding',
+  notEnoughBalance:'Not enough balance on account - ანგარიშზე საკმარისი თანხა არ არის'
 };
 
 const successMessages = {
@@ -21,7 +22,8 @@ const successMessages = {
     'Password changed succesfully - პაროლი წარმატებით შეიცვალა',
   automobileDeleteSuccess:'Automobile deleted succesfully - ავტომობილი წარმატებით წაიშალა',
   seedSuccess:'Seed completed succesfully',
-  zoneDeleteSuccess:'Zone deleted succesfully - პარკირების ზომა წარმატებით წაიშალა'
+  zoneDeleteSuccess:'Zone deleted succesfully - პარკირების ზომა წარმატებით წაიშალა',
+  parkingCreateSuccess:'Parking card created - თქვენ შეიძინეთ ზონაზე პარკირება'
 };
 
 export { errorMessages, successMessages };
