@@ -7,7 +7,12 @@ import { errorMessages, successMessages } from '../utils/messages';
 import { StatusCodes } from 'http-status-codes';
 import { getZoneById } from '../services/zone';
 import { updateUserBalance } from '../services/user';
-import { createParking } from '../services/parking';
+import {
+  createParking,
+  getParkingById,
+  getParkingByIdDetailed,
+  removeParkingById,
+} from '../services/parking';
 import { getAutomobileById } from '../services/automobile';
 
 const createParkingHandler = asyncHandler(
@@ -72,4 +77,78 @@ const createParkingHandler = asyncHandler(
   }
 );
 
-export { createParkingHandler };
+const getParkingByIdHandler = asyncHandler(
+  async (
+    req: Request<{ parkingId: string }> & { user: User },
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { parkingId } = req.params;
+
+    if (!req.user) {
+      return next(
+        new ErrorResponse(
+          errorMessages.unauthenticated,
+          StatusCodes.UNAUTHORIZED
+        )
+      );
+    }
+
+    if (!parkingId) {
+      return next(
+        new ErrorResponse(errorMessages.missingFields, StatusCodes.BAD_REQUEST)
+      );
+    }
+
+    const parking = await getParkingByIdDetailed(parkingId);
+    if (!parking) {
+      return next(
+        new ErrorResponse(errorMessages.notFound, StatusCodes.NOT_FOUND)
+      );
+    }
+
+    return res.status(StatusCodes.OK).json({ success: true, data: parking });
+  }
+);
+
+const removeParkingByIdHandler = asyncHandler(
+  async (
+    req: Request<{ parkingId: string }> & { user: User },
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { parkingId } = req.params;
+    if (!req.user) {
+      return next(
+        new ErrorResponse(
+          errorMessages.unauthenticated,
+          StatusCodes.UNAUTHORIZED
+        )
+      );
+    }
+    if (!parkingId) {
+      return next(
+        new ErrorResponse(errorMessages.missingFields, StatusCodes.BAD_REQUEST)
+      );
+    }
+
+    const parking = await getParkingById(parkingId);
+    if (!parking) {
+      return next(
+        new ErrorResponse(errorMessages.notFound, StatusCodes.NOT_FOUND)
+      );
+    }
+
+    await removeParkingById(parkingId);
+
+    return res
+      .status(StatusCodes.OK)
+      .json({ success: true, data: successMessages.parkingDeleteSuccess });
+  }
+);
+
+export {
+  createParkingHandler,
+  getParkingByIdHandler,
+  removeParkingByIdHandler,
+};

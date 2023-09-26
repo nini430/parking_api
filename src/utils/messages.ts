@@ -23,7 +23,8 @@ const successMessages = {
   automobileDeleteSuccess:'Automobile deleted succesfully - ავტომობილი წარმატებით წაიშალა',
   seedSuccess:'Seed completed succesfully',
   zoneDeleteSuccess:'Zone deleted succesfully - პარკირების ზომა წარმატებით წაიშალა',
-  parkingCreateSuccess:'Parking card created - თქვენ შეიძინეთ ზონაზე პარკირება'
+  parkingCreateSuccess:'Parking card created - თქვენ შეიძინეთ ზონაზე პარკირება',
+  parkingDeleteSuccess:'Parking deleted succesfully - ზონაზე თქვენი პარკირება გაუქმდა'
 };
 
 export { errorMessages, successMessages };
