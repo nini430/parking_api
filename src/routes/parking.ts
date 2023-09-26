@@ -7,7 +7,7 @@ const parkingRouter=Router();
 parkingRouter.use(authProtect);
 
 parkingRouter.get('/details/:parkingId',getParkingByIdHandler);
-parkingRouter.delete('/remove/:parkingId',removeParkingByIdHandler);
+parkingRouter.put('/remove/:parkingId',removeParkingByIdHandler);
 parkingRouter.post('/:zoneId/:automobileId',createParkingHandler);
 
 export default parkingRouter;

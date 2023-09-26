@@ -42,6 +42,22 @@ const getParkingByIdDetailed = async (parkingId: string) => {
   return rest;
 };
 
+const getValidParkingByAutoAndZone = async (
+  automobileId: string,
+  zoneId: string
+) => {
+  const instance = await db.parkingInstance.findFirst({
+    where: {
+      automobileId,
+      zoneId,
+      expireDate: {
+        gt: Date.now(),
+      },
+    },
+  });
+  return instance;
+};
+
 const getParkingById = async (parkingId: string) => {
   const parking = await db.parkingInstance.findUnique({
     where: {
@@ -56,9 +72,9 @@ const cancelParkingById = async (parkingId: string) => {
     where: {
       id: parkingId,
     },
-    data:{
-      isCanceled:true
-    }
+    data: {
+      isCanceled: true,
+    },
   });
 };
 
@@ -66,5 +82,6 @@ export {
   createParking,
   getParkingByIdDetailed,
   getParkingById,
-  cancelParkingById
+  cancelParkingById,
+  getValidParkingByAutoAndZone,
 };

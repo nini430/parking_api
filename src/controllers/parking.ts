@@ -12,6 +12,7 @@ import {
   createParking,
   getParkingById,
   getParkingByIdDetailed,
+  getValidParkingByAutoAndZone,
 } from '../services/parking';
 import { getAutomobileById } from '../services/automobile';
 
@@ -57,6 +58,15 @@ const createParkingHandler = asyncHandler(
       );
     }
 
+    const instance = await getValidParkingByAutoAndZone(automobileId, zoneId);
+    if (instance) {
+      return next(
+        new ErrorResponse(
+          errorMessages.uniqueConstraintError,
+          StatusCodes.CONFLICT
+        )
+      );
+    };
     const totalCost = zone.hourlyCost * boughtHours;
     const expireDate = Date.now() + boughtHours * 60 * 60 * 1000;
     if (totalCost > req.user.virtualBalance) {
