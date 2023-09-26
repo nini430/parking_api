@@ -11,7 +11,9 @@ const errorMessages = {
   unauthenticated:'Unauthenticated - არაავტორიზებული მოთხოვნა',
   notFound:'Not Found - არ მოიძებნა',
   seedError:'Error seeding',
-  notEnoughBalance:'Not enough balance on account - ანგარიშზე საკმარისი თანხა არ არის'
+  notEnoughBalance:'Not enough balance on account - ანგარიშზე საკმარისი თანხა არ არის',
+  invalidParams:'Invalid Params',
+  actionNotAllowed:'Action not allowed - მოთხოვნა აკრძალულია'
 };
 
 const successMessages = {

@@ -58,6 +58,12 @@ const createParkingHandler = asyncHandler(
       );
     }
 
+    if (automobile.userId !== req.user.id) {
+      return next(
+        new ErrorResponse(errorMessages.actionNotAllowed, StatusCodes.FORBIDDEN)
+      );
+    }
+
     const instance = await getValidParkingByAutoAndZone(automobileId, zoneId);
     if (instance) {
       return next(
@@ -66,7 +72,7 @@ const createParkingHandler = asyncHandler(
           StatusCodes.CONFLICT
         )
       );
-    };
+    }
     const totalCost = zone.hourlyCost * boughtHours;
     const expireDate = Date.now() + boughtHours * 60 * 60 * 1000;
     if (totalCost > req.user.virtualBalance) {
@@ -117,6 +123,12 @@ const getParkingByIdHandler = asyncHandler(
       );
     }
 
+    if (parking.automobile.userId !== req.user.id) {
+      return next(
+        new ErrorResponse(errorMessages.actionNotAllowed, StatusCodes.FORBIDDEN)
+      );
+    }
+
     return res.status(StatusCodes.OK).json({ success: true, data: parking });
   }
 );
@@ -146,6 +158,12 @@ const removeParkingByIdHandler = asyncHandler(
     if (!parking) {
       return next(
         new ErrorResponse(errorMessages.notFound, StatusCodes.NOT_FOUND)
+      );
+    }
+
+    if (parking.automobile.userId !== req.user.id) {
+      return next(
+        new ErrorResponse(errorMessages.actionNotAllowed, StatusCodes.FORBIDDEN)
       );
     }
 

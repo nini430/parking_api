@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import asyncHandler from 'express-async-handler';
 import { StatusCodes } from 'http-status-codes';
+import jwt from 'jsonwebtoken';
 
 import { LoginInput, RegisterInput } from '../types/auth';
 import {
@@ -124,6 +125,11 @@ const forgotPasswordHandler = asyncHandler(
     next: NextFunction
   ) => {
     const { email } = req.body;
+    if (!email) {
+      return next(
+        new ErrorResponse(errorMessages.missingFields, StatusCodes.BAD_REQUEST)
+      );
+    }
     const user = await findUserByEmail(email);
     if (!user) {
       return next(
@@ -169,12 +175,18 @@ const resetPasswordTokenHandler = asyncHandler(
     const tokenParam = req.params.token;
     const { newPassword } = req.body;
 
-    if(!userId || !tokenParam || !newPassword) {
+    if (!userId || !newPassword) {
       return next(
         new ErrorResponse(
           errorMessages.invalidCredentials,
           StatusCodes.BAD_REQUEST
         )
+      );
+    }
+
+    if (!tokenParam) {
+      return next(
+        new ErrorResponse(errorMessages.invalidParams, StatusCodes.BAD_REQUEST)
       );
     }
 
@@ -216,9 +228,57 @@ const resetPasswordTokenHandler = asyncHandler(
   }
 );
 
+const refreshTokenHandler = asyncHandler(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+      return next(
+        new ErrorResponse(
+          errorMessages.unauthenticated,
+          StatusCodes.UNAUTHORIZED
+        )
+      );
+    }
+
+    jwt.verify(
+      token,
+      process.env.JWT_REFRESH_TOKEN_SECRET!,
+      async (err, data: any) => {
+        if (err) {
+          return next(
+            new ErrorResponse(
+              errorMessages.unauthenticated,
+              StatusCodes.UNAUTHORIZED
+            )
+          );
+        }
+        const user = await findUserById(data.userId);
+        if (!user) {
+          return next(
+            new ErrorResponse(
+              errorMessages.unauthenticated,
+              StatusCodes.UNAUTHORIZED
+            )
+          );
+        }
+
+        const accessToken = createToken(
+          user.id,
+          process.env.JWT_ACCESS_TOKEN_SECRET!,
+          process.env.JWT_ACCESS_TOKEN_EXPIRE_MIN!
+        );
+        return res
+          .status(StatusCodes.OK)
+          .json({ success: true, data: { accessToken } });
+      }
+    );
+  }
+);
+
 export {
   registerUserHandler,
   loginUserHandler,
   forgotPasswordHandler,
   resetPasswordTokenHandler,
+  refreshTokenHandler,
 };

@@ -92,6 +92,20 @@ const updateAutomobileHandler = asyncHandler(
       );
     }
 
+    const automobile = await getAutomobileById(automobileId);
+
+    if (!automobile) {
+      return next(
+        new ErrorResponse(errorMessages.notFound, StatusCodes.NOT_FOUND)
+      );
+    }
+
+    if (automobile.userId !== req.user.id) {
+      return next(
+        new ErrorResponse(errorMessages.actionNotAllowed, StatusCodes.FORBIDDEN)
+      );
+    }
+
     const updatedAutomobile = await updateAutomobile(
       { brand, color, modelYear, name, type, vehicleIdentificationNumber },
       automobileId
@@ -134,6 +148,12 @@ const getAutomobileByIdHandler = asyncHandler(
       );
     }
 
+    if (automobile.userId !== req.user.id) {
+      return next(
+        new ErrorResponse(errorMessages.actionNotAllowed, StatusCodes.FORBIDDEN)
+      );
+    }
+
     return res.status(StatusCodes.OK).json({ success: true, data: automobile });
   }
 );
@@ -167,13 +187,17 @@ const removeAutomobileByIdHandler = asyncHandler(
       );
     }
 
+    if (automobile.userId !== req.user.id) {
+      return next(
+        new ErrorResponse(errorMessages.actionNotAllowed, StatusCodes.FORBIDDEN)
+      );
+    }
+
     await removeAutomobileById(automobile.id);
-    return res
-      .status(StatusCodes.OK)
-      .json({
-        success: true,
-        message: successMessages.automobileDeleteSuccess,
-      });
+    return res.status(StatusCodes.OK).json({
+      success: true,
+      message: successMessages.automobileDeleteSuccess,
+    });
   }
 );
 export {

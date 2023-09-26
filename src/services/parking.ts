@@ -63,6 +63,13 @@ const getParkingById = async (parkingId: string) => {
     where: {
       id: parkingId,
     },
+    include:{
+      automobile:{
+        select:{
+          userId:true
+        }
+      }
+    }
   });
   return parking;
 };
